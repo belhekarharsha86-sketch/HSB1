@@ -32,7 +32,7 @@
             border-radius: 12px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             width: 100%;
-            max-width: 450px;
+            max-width: 500px;
         }
 
         h2 {
@@ -54,7 +54,7 @@
             font-size: 14px;
         }
 
-        input, select {
+        input, select, textarea {
             width: 100%;
             padding: 10px;
             border: 1px solid var(--border);
@@ -62,9 +62,15 @@
             font-size: 15px;
             box-sizing: border-box;
             transition: border-color 0.2s;
+            font-family: inherit;
         }
 
-        input:focus, select:focus {
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: var(--primary);
         }
@@ -150,6 +156,22 @@
             </select>
         </div>
 
+        <!-- 5. Budget Tier Selection -->
+        <div class="form-group">
+            <label for="budgetTier">Target Budget Range</label>
+            <select id="budgetTier" required>
+                <option value="economy">Economy / Budget</option>
+                <option value="midrange" selected>Mid-Range</option>
+                <option value="luxury">Luxury / Premium</option>
+            </select>
+        </div>
+
+        <!-- 6. Itinerary Outline / Preference -->
+        <div class="form-group">
+            <label for="itinerary">Itinerary Intent & Focus</label>
+            <textarea id="itinerary" placeholder="e.g. 3 days Paris museums, 4 days French Riviera beaches..." required></textarea>
+        </div>
+
         <button type="submit">Generate AI Prediction</button>
     </form>
 
@@ -170,12 +192,14 @@
     document.getElementById('plannerForm').addEventListener('submit', async function(e) {
         e.preventDefault(); // Prevents the page from refreshing
 
-        // Collect values from the form inputs
+        // Collect values from the form inputs including new budget and itinerary keys
         const formData = {
             accommodation_available: parseInt(document.getElementById('accommodation').value),
             duration_days: parseInt(document.getElementById('duration').value),
             traveler_age: parseInt(document.getElementById('age').value),
-            target_country: document.getElementById('country').value
+            target_country: document.getElementById('country').value,
+            budget_tier: document.getElementById('budgetTier').value,
+            itinerary_notes: document.getElementById('itinerary').value
         };
 
         // Frontend Simulation (Replace the mock code below with your actual API fetch when your Flask/FastAPI backend is running)
@@ -184,8 +208,13 @@
         // --- MOCK RESPONSE FOR TESTING ---
         // (Delete this simulated code once you hook up your python backend api)
         setTimeout(() => {
-            document.getElementById('budgetOutput').innerText = `$${(formData.duration_days * 125.50).toFixed(2)}`;
-            document.getElementById('ratingOutput').innerText = `⭐ 4.2 / 5`;
+            // Simulated weight based on budget tier selection
+            let multiplier = 125.50;
+            if (formData.budget_tier === 'economy') multiplier = 65.00;
+            if (formData.budget_tier === 'luxury') multiplier = 350.00;
+
+            document.getElementById('budgetOutput').innerText = `$${(formData.duration_days * multiplier).toFixed(2)}`;
+            document.getElementById('ratingOutput').innerText = `⭐ 4.5 / 5`;
             document.getElementById('resultsSection').classList.add('active');
         }, 500);
         // ---------------------------------
@@ -193,7 +222,7 @@
         /* 
         // UNCOMMENT THIS CODE TO CONNECT TO YOUR FLASK/FASTAPI BACKEND:
         try {
-            const response = await fetch('http://127.0.0', {
+            const response = await fetch('http://127.0.0', { // Updated with sample placeholder endpoint
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
