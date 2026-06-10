@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Travel Planner Dashboard</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --background: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            width: 100%;
+            max-width: 450px;
+        }
+
+        h2 {
+            margin-top: 0;
+            margin-bottom: 24px;
+            color: #0f172a;
+            text-align: center;
+            font-size: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 15px;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .results {
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 2px dashed var(--border);
+            display: none;
+        }
+
+        .results.active {
+            display: block;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+        }
+
+        .result-value {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🗺️ AI Travel Planner</h2>
+    
+    <form id="plannerForm">
+        <!-- 1. Accommodation Available -->
+        <div class="form-group">
+            <label for="accommodation">Accommodation Booked?</label>
+            <select id="accommodation" required>
+                <option value="1">Yes</option>
+                <option value="0">No</option>
+            </select>
+        </div>
+
+        <!-- 2. Duration (Days) -->
+        <div class="form-group">
+            <label for="duration">Trip Duration (Days)</label>
+            <input type="number" id="duration" min="1" max="90" placeholder="e.g. 7" required>
+        </div>
+
+        <!-- 3. Traveler Age -->
+        <div class="form-group">
+            <label for="age">Traveler Age</label>
+            <input type="number" id="age" min="1" max="120" placeholder="e.g. 25" required>
+        </div>
+
+        <!-- 4. Target Country -->
+        <div class="form-group">
+            <label for="country">Target Country</label>
+            <select id="country" required>
+                <option value="France">France</option>
+                <option value="USA">USA</option>
+                <option value="Japan">Japan</option>
+                <option value="UK">UK</option>
+                <option value="India">India</option>
+            </select>
+        </div>
+
+        <button type="submit">Generate AI Prediction</button>
+    </form>
+
+    <!-- Output Results View -->
+    <div class="results" id="resultsSection">
+        <div class="result-item">
+            <span>Predicted Budget/Revenue:</span>
+            <span class="result-value" id="budgetOutput">$0.00</span>
+        </div>
+        <div class="result-item">
+            <span>Predicted Satisfaction Rating:</span>
+            <span class="result-value" id="ratingOutput">0.0 / 5</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('plannerForm').addEventListener('submit', async function(e) {
+        e.preventDefault(); // Prevents the page from refreshing
+
+        // Collect values from the form inputs
+        const formData = {
+            accommodation_available: parseInt(document.getElementById('accommodation').value),
+            duration_days: parseInt(document.getElementById('duration').value),
+            traveler_age: parseInt(document.getElementById('age').value),
+            target_country: document.getElementById('country').value
+        };
+
+        // Frontend Simulation (Replace the mock code below with your actual API fetch when your Flask/FastAPI backend is running)
+        console.log("Sending data to backend models:", formData);
+
+        // --- MOCK RESPONSE FOR TESTING ---
+        // (Delete this simulated code once you hook up your python backend api)
+        setTimeout(() => {
+            document.getElementById('budgetOutput').innerText = `$${(formData.duration_days * 125.50).toFixed(2)}`;
+            document.getElementById('ratingOutput').innerText = `⭐ 4.2 / 5`;
+            document.getElementById('resultsSection').classList.add('active');
+        }, 500);
+        // ---------------------------------
+
+        /* 
+        // UNCOMMENT THIS CODE TO CONNECT TO YOUR FLASK/FASTAPI BACKEND:
+        try {
+            const response = await fetch('http://127.0.0', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+            const data = await response.json();
+            
+            // Map the JSON key parameters returned by your Python API script
+            document.getElementById('budgetOutput').innerText = `$${data.predicted_revenue}`;
+            document.getElementById('ratingOutput').innerText = `⭐ ${data.predicted_rating} / 5`;
+            document.getElementById('resultsSection').classList.add('active');
+        } catch (error) {
+            alert("Error connecting to the AI backend server.");
+            console.error(error);
+        }
+        */
+    });
+</script>
+
+</body>
+</html>
